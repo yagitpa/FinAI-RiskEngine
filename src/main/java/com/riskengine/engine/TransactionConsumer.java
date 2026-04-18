@@ -22,6 +22,7 @@ public class TransactionConsumer {
 
     private final RiskScoringEngine scoringEngine;
     private final ObjectMapper objectMapper;
+    private final TransactionPersistenceService persistenceService;
 
     /**
      * @KafkaListener — Spring Kafka. Параметры: - topics: откуда читать - groupId: к какой группе потребителей принадлежим - containerFactory:
@@ -52,6 +53,8 @@ public class TransactionConsumer {
             // 3. Логирование решения
             log.info("Risk Decision [{}] → ACTION: {} | REASON: {}",
                     decision.txId(), decision.action(), decision.reason());
+
+            persistenceService.saveWithAudit(tx, decision);
 
         } catch (JsonProcessingException e) {
             log.error("Malformed Kafka message: {}", message, e);
