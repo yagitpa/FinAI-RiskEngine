@@ -1,43 +1,37 @@
 package com.riskengine.web;
 
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import com.riskengine.data.LabeledTransaction;
 import com.riskengine.data.TransactionGenerator;
-
-import java.util.stream.Collectors;
+import com.riskengine.engine.TransactionProducer;
 
 /**
- * Запускается автоматически после старта Spring Boot. Демонстрирует работу генератора синтетических данных.
+ * Демонстрирует потоковую генерацию и отправку в Kafka.
  */
 @Component
+@RequiredArgsConstructor
 public class DataGeneratorRunner implements CommandLineRunner {
+
+    private final TransactionProducer producer;
 
     @Override
     public void run(String... args) {
-        System.out.println("Запуск генератора синтетических данных...");
+        System.out.println("Запуск генератора + отправка в Kafka...");
 
         TransactionGenerator generator = new TransactionGenerator(42L, 50);
 
-        var transactions = generator.generate(20, 0.1)
-                .toList();
+        generator.generate(30, 0.15)
+                .forEach(tx -> {
+                    producer.send(tx);
 
-        System.out.println("\n📊 Сгенерировано транзакций: " + transactions.size());
-        transactions.forEach(tx ->
-                System.out.printf("  [%s] %s | %s | %.2f RUB | %s%n",
-                        tx.label(),
-                        tx.transaction().timestamp(),
-                        tx.transaction().merchantCategory(),
-                        tx.transaction().amount(),
-                        tx.reason()
-                )
-        );
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ignored) {
+                    }
+                });
 
-        // Подсчёт статистики
-        long fraudCount = transactions.stream()
-                .filter(tx -> tx.label() == LabeledTransaction.Label.FRAUD)
-                .count();
-        System.out.printf("%n Легитимных: %d, Мошеннических: %d%n",
-                transactions.size() - fraudCount, fraudCount);
+        System.out.println("\nГенерация завершена. Данные в топике 'transactions-risk'.");
     }
 }
