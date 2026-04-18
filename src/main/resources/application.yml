@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/riskdb
+    username: riskuser
+    password: riskpass
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 3000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+  ai:
+    vectorstore:
+      pgvector:
+        dimensions: 1536
+        initialize-schema: true
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org.springframework.ai: DEBUG
+    com.riskengine: DEBUG
