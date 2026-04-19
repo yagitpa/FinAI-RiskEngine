@@ -3,49 +3,28 @@ spring:
     url: jdbc:postgresql://localhost:5432/riskdb
     username: riskuser
     password: riskpass
-    hikari:
-      maximum-pool-size: 20
-      connection-timeout: 3000
-
   jpa:
     hibernate:
       ddl-auto: update
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: false
-
   kafka:
     bootstrap-servers: host.docker.internal:9092
-
     consumer:
       group-id: risk-scoring-group
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable-auto-commit: true
-      auto-commit-interval: 5000
-
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
-      retries: 3
-      properties:
-        enable.idempotence: true
-        max.in.flight.requests.per.connection: 5
-
 server:
   port: 8081
-
 app:
   kafka:
     topic:
       transactions: transactions-risk
-
+  data-generator:
+    enabled: true
 logging:
   level:
-    root: INFO
     com.riskengine: DEBUG
-    org.springframework.kafka: INFO
-    org.springframework.boot: WARN

@@ -3,6 +3,7 @@ package com.riskengine.web;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import com.riskengine.data.TransactionGenerator;
 import com.riskengine.engine.TransactionProducer;
@@ -12,6 +13,8 @@ import com.riskengine.engine.TransactionProducer;
  */
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(name = "app.data-generator.enabled", havingValue = "true", matchIfMissing = false)
+// использую свойство с параметром FALSE для отключения в тестах
 public class DataGeneratorRunner implements CommandLineRunner {
 
     private final TransactionProducer producer;

@@ -1,0 +1,18 @@
+app:
+  data-generator:
+    enabled: false
+
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092} # переопределяется в @DynamicPropertySource
+    consumer:
+      auto-offset-reset: earliest
+      group-id: test-group
+    producer:
+      properties:
+        max.block.ms: 5000 # не ждать вечно, если брокер недоступен
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.devtools.autoconfigure.DevToolsDataSourceAutoConfiguration
